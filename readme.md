@@ -1,3 +1,6 @@
+PlataformerGame *Restarted*
+**This project has been Restarted from scratch**
+
 # What is this game?
 *Is a game development base to a plataformer based game*
 
@@ -12,4 +15,5 @@
 ...
 
 **ALL HELP WILL BE GREAT**
-[This is google.](https://google.com)
+
+(Discord)[https://discord.gg/fb84sHDX7R]
