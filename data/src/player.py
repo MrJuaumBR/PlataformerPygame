@@ -6,6 +6,7 @@ class Player(pyg.sprite.Sprite):
     def __init__(self,XY,groups):
         super().__init__(groups)
 
+        self.group = groups
         # Only if need reset rect
         self.StartPos = XY
         self.size = (32,64)
@@ -36,6 +37,7 @@ class Player(pyg.sprite.Sprite):
 
             if self.rect.y -self.Mov[1] < 0:
                 self.Mov[1] = 0 # Reset if < 0
+            self.lastSide = "Up"
 
         self.JumpCountdown = True
 
@@ -90,7 +92,18 @@ class Player(pyg.sprite.Sprite):
         if self.rect.colliderect(self.EndOfScreen.rect):
             self.Mov[1] = 0
             self.rect.y = self.EndOfScreen.rect.top-(self.size[1]-2)
-
+    
+    def collision(self):
+        for tile in self.group.sprites():
+            if tile.colliderect(self.rect):
+                if self.lastSide == "Left":
+                    self.rect.left = tile.right
+                elif self.lastSide == "Right":
+                    self.rect.right = tile.left
+                elif self.lastSide == "Up":
+                    self.rect.top = tile.bottom
+                elif self.lastSide == "Down":
+                    """Anythng"""
 
     def draw(self):
         """Draw Player Object"""

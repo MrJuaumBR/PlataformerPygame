@@ -6,8 +6,14 @@ TODO LIST
 [*] - No Changes
 
 - Player Sprite
-- Menus
+[+ 0.1] - Menus
 [+ 0.1] - Gravity System
+[+ 0.1] - Add Launch.json
+[+ 0.1] - World Class
+[+ 0.1] - Time
+- Save Select Menu
+- Game Gui & Icons
+- Plataforms
 
 """
 
@@ -17,6 +23,10 @@ TODO LIST
 
 import pygame as pyg
 from pygame.locals import *
+from .world import World
+from .plugin import PooPEngine_Rework
+
+pyg.init() # Pygame Init
 
 # Game Pre-Build
 SC_WIDTH = 800
@@ -49,3 +59,11 @@ pyg.display.set_caption(GAMETITLE+str(VERSION)) # Set Screen Caption/Title
 # Clock
 PYG_CLOCK = pyg.time.Clock()
 FPS = 60
+
+# Setup Classes
+CLS_WORLD = World()
+PPE = PooPEngine_Rework(SCREEN)
+
+# Fonts
+PPE.create_font(size=26) # Title Font
+PPE.create_font()
