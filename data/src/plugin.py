@@ -1,3 +1,8 @@
+"""IF YOU DON'T KNOW WHAT YOU MAKING, DON'T CHANGE NOTHING."""
+"""
+This a rework for PooPEngine!
+"""
+
 import pygame as pyg
 from pygame.locals import *
 from .config import *

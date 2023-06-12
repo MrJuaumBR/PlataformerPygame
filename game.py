@@ -1,3 +1,5 @@
+"""IF YOU DON'T KNOW WHAT YOU MAKING, DON'T CHANGE NOTHING."""
+
 from sys import exit
 import pygame as pyg
 from pygame.locals import *

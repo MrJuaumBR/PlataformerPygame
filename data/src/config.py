@@ -15,6 +15,11 @@ TODO LIST
 - Game Gui & Icons
 - Plataforms
 
+
+
+
+
+IF YOU DON'T KNOW WHAT YOU MAKING, DON'T CHANGE NOTHING.
 """
 
 

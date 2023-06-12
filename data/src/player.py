@@ -1,3 +1,5 @@
+"""IF YOU DON'T KNOW WHAT YOU MAKING, DON'T CHANGE NOTHING."""
+
 import pygame as pyg
 from pygame.locals import *
 from .config import *

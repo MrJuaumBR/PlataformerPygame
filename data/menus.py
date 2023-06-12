@@ -1,3 +1,5 @@
+"""IF YOU DON'T KNOW WHAT YOU MAKING, DON'T CHANGE NOTHING."""
+
 # Import Libraries  Locals
 
 from data.src.config import *
