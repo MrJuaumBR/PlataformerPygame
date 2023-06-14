@@ -18,7 +18,11 @@ PlataformerGame *Restarted*
 - Save System
 - Time System(Day & Night)
 - World Edit & Create
+- Enemys
+- Tools & Drops
 - RPG Games GUI
+- Main Menu
+- Pause Menu
 
 **ALL HELP WILL BE GREAT**
 
