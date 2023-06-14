@@ -13,6 +13,7 @@ PlataformerGame *Restarted*
 # Requirements:
 - Python(3.10)
 - PyGame
+- pypresence
 
 # Future ideas:
 - Save System
