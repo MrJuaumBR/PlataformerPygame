@@ -18,6 +18,7 @@ PlataformerGame *Restarted*
 - Python(3.10)
 - PyGame
 - pypresence
+- pypresence
 
 # Future ideas:
 [! 0.1] - Save System
