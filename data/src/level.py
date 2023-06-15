@@ -32,10 +32,13 @@ class Level:
                     player_sprite = player((x,y))
                     self.player.add(player_sprite)
                 elif cell == '3':
-                    tile = SpiekBall((x,y),TILE_SIZE)
+                    tile = SpikeBall((x,y),TILE_SIZE)
+                    self.tiles.add(tile)
+                elif cell == '4':
+                    tile = Spike((x,y),TILE_SIZE)
                     self.tiles.add(tile)
         
-        self.tiles.add(DeadPoint((HALF_SCREEN_WIDTH-30,SCREEN_HEIGHT+50),(SCREEN_WIDTH+60,15))) # Dead Point
+        self.tiles.add(DeadPoint((0,SCREEN_HEIGHT+50),(SCREEN_WIDTH+60,15))) # Dead Point
 
     def check_take_damage(self,player,sprite):
         if sprite.type == "Damage":
@@ -112,6 +115,10 @@ class Level:
         self.scroll_x()
         
         self.player.update()
+        if self.player.sprite.respawned:
+            self.player.sprite.rect.topleft = self.world_spawn
+            self.player.sprite.respawned = False
+
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
 

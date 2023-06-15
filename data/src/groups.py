@@ -15,5 +15,5 @@ class TilesGroup(pyg.sprite.Group):
         return super().draw(surface)
     """
     def draw(self, surface: Surface) -> List[Rect]:
-        for sprite in self.sprites():
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.priority):
             sprite.draw(surface)

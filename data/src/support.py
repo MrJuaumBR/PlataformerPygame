@@ -1,5 +1,7 @@
 import pygame as pyg
 from pygame.locals import *
+import sqlite3 as sql
+
 
 class spritesheet(object):
     def __init__(self, filename):
@@ -110,6 +112,25 @@ class BetterPyGame():
         else:
             r = pyg.draw.rect(self.SCREEN,color,Rect(Pos[0],Pos[1],Size[0],Size[1]))
         return r
+    
+    def draw_select(self,Pos=(0,0),font=0,colors=((0,0,0),(100,100,100)),options=[],current_option=0):
+        if type(font) == int:
+            font = self.fonts[font]
+        cur = options[current_option]
+        X_change = int(font.size(str(cur))[0]*1.25)+1
+        self.draw_text(str(cur),(Pos[0]-(X_change/4),Pos[1]),font,True,colors[0],colors[1])
+        Back = self.draw_button("<",(Pos[0]-X_change,Pos[1]),font,colors) # Back
+        Next = self.draw_button(">",(Pos[0]+X_change, Pos[1]), font, colors) # Next
+        if Back:
+            current_option -= 1
+            if current_option<0:
+                current_option = len(options)-1
+        elif Next:
+            current_option += 1
+            if current_option>len(options)-1:
+                current_option = 0
+        return current_option
+
     def set_volume(self,volume=1):
         """
         Set All sounds and musics volume
@@ -125,3 +146,55 @@ class BetterPyGame():
         s = pyg.mixer.Sound(file)
         s.set_volume(individual_volume)
         s.play()
+
+    
+
+class DataBase():
+    def __init__(self,database='/database.db',autocommit=True):
+        self.db_path = database
+        self.autocommit = autocommit
+        self.setup_database()
+
+    def to_(self,values:list) -> str:
+        val = ""
+        for i,value in enumerate(values):
+            if value == values[-1]:
+                v = value
+            else:
+                v = value+", "
+            val += v
+        return val
+    
+    def ac(self):
+        if self.autocommit:
+            self.db.commit()
+
+    def setup_database(self):
+        """
+        Setup the basic of database
+        """
+        self.db = sql.connect(self.db_path)
+        self.cur = self.db.cursor()
+        self.db.commit()
+
+    def create_table(self,name:str,values:list):
+        """
+        Create a table if not exists
+        name = Table Name
+        valies = List of Values Name & Types ["name TEXT","value INTEGER"] ...
+        """
+        val = self.to_(values)
+        self.cur.execute(f"""CREATE TABLE IF NOT EXISTS {name} ({val})""")
+        self.ac()
+
+    def get(self,id:int,table:str):
+        return self.cur.execute(f"""
+        SELECT * FROM {table} WHERE id={id}
+        """).fetchone()
+    
+    def insert(self,table:str,columns:list,values:list):
+        values = self.to_(values)
+        columns = self.to_(columns)
+
+        self.cur.execute(f"INSERT INTO {table} ({columns}) VALUES ({values})")
+        self.ac()

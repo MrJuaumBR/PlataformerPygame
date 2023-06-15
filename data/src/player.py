@@ -17,6 +17,7 @@ class player(pyg.sprite.Sprite):
         self.image = self.animations['idle'][self.frame_index]
         self.image = pyg.transform.scale(self.image,size=(64,64))
         self.rect = self.image.get_rect(topleft=pos)
+        self.priority = 1000
 
         # Player Movement
         self.direction = pyg.math.Vector2(0,0)
@@ -44,6 +45,8 @@ class player(pyg.sprite.Sprite):
         if self.health_bar_width > 500: # Limiter to width
             self.health_bar_width = 500
         self.health_ratio = self.maxHealth / self.health_bar_width
+        self.respawn_cooldown = 0# FPS * Seconds = 60 * 5.
+        self.respawned = False
 
     def take_damage(self,damage):
         if self.health >0 and self.status != "dead" and self.take_damage_frame == 0:
@@ -59,8 +62,11 @@ class player(pyg.sprite.Sprite):
             if self.health <= 0:
                 self.health = 0
                 BPYG.play_sound(SOUNDS_FOLDER+'dead.wav',.45)
-                self.status = "dead"
-
+                self.status = "dead"   
+                self.respawn_cooldown = 60 * 5
+            else:
+                BPYG.play_sound(SOUNDS_FOLDER+'hurt.wav',.3)
+                
     def heal_damage(self,heal):
         if self.heal_frame <= 0 and self.status != "dead":
             self.health += heal
@@ -79,13 +85,23 @@ class player(pyg.sprite.Sprite):
         if self.status == "dead":
             BPYG.draw_text("Dead X(",(25,12),1,True,(0,0,0))
         else:
-            BPYG.draw_text(f"{self.health}/{self.maxHealth}",(25,12),1,True,(0,0,0))
+            BPYG.draw_text(f"{int(self.health)}/{self.maxHealth}",(25,12),1,True,(0,0,0))
         
         if self.health < self.maxHealth:
             if self.heal_frame > 0 and self.status != "dead":
                 self.heal_frame -= 1
             elif self.heal_frame == 0:
                 self.heal_damage(self.maxHealth*0.025) # 0.25% per Second
+        # Player Revive
+        if self.status == "dead" and self.health <= 0 and self.respawn_cooldown > 0:
+            BPYG.draw_text(f"You died, {int(self.respawn_cooldown//60)}s to respawn",(self.rect.centerx,self.rect.centery-125),0,True,C_RED)
+            self.respawn_cooldown -= 1
+            if self.respawn_cooldown <= 0:
+                self.respawn_cooldown = 0
+                self.status = "idle"
+                self.locked = False
+                self.health = self.maxHealth // 2
+                self.respawned = True
 
     def animate(self):
         animation = self.animations[self.status]
