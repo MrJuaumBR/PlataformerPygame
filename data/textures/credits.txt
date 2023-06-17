@@ -1,5 +1,6 @@
 The authors didn't ask, however I think it's fair to put the credits.
 
-- Enemies, Items, Meter, Player and tiles textures are from:
-    - https://opengameart.org/content/platform-pixel-art-assets
-    - A Public Domain
+- Big part if all textures are from:
+    - https://opengameart.org/
+    - A Public Domain.
+    - I only used textures/arts without any copyright.

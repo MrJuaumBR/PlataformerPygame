@@ -5,8 +5,9 @@ TODO LIST
 [+] - Added
 [-] - Removed
 [!] - Tiny Changes
+[*] - Changes
 
-[! 0.1] - Save System
+[* 0.1] - Save System
 - Time System(Day & Night)
 - World Edit & Create
 [! 0.1] - Enemys
@@ -18,14 +19,18 @@ TODO LIST
   [! 0.1] - Inventory
 [+ 0.1] - Discord Rich Presence
 
+=========================================================================== [BUGS LIST]
+
 =========================================================================== [MAP DICTIONARY]
 
 MAP DICTIONARY:
   = Null
 0 = Player Spawn
 1 = Block
-3 = SpikeBall
-4 = Spike
+2 = SpikeBall
+3 = Spike
+4 = Checkpoint
+5 = Door
 
 """
 import pygame as pyg
@@ -42,11 +47,11 @@ level_map = [
 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1',' '], 
 [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', ' ',' '], 
 [' ', '1', '1', ' ', ' ', ' ', ' ', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', ' ', ' ', ' ', '1', '1', '1', '1', ' ','1'], 
-[' ', '1', '1', ' ', '0', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ',' '], 
-[' ', '1', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', ' ', '1', ' ', '1', '1','1'], 
+[' ', '1', '1', ' ', '0', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '5', ' ', '1', ' ',' '], 
+[' ', '1', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', '1', ' ', '1', '1','1'], 
 [' ', '1', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', '1', '1',' '], 
 [' ', '1', '1', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1', '1', '1', '1', ' ', ' ', ' ', ' ', '1', '1', ' ', ' ', '1', '1', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1','1'], 
-[' ', ' ', ' ', ' ', ' ', ' ', '4', '1', ' ', ' ', '1', '1', '1', '1', '4', '4', ' ', ' ', '1', '1', ' ', ' ', '1', '1', '1', ' ', ' ', ' ', '1', '4', ' ', ' ',' '], 
+[' ', ' ', ' ', ' ', ' ', ' ', '3', '1', ' ', ' ', '1', '1', '1', '1', '3', '3', ' ', ' ', '1', '1', ' ', ' ', '1', '1', '1', ' ', ' ', ' ', '1', '3', ' ', ' ','4'], 
 [' ', ' ', ' ', ' ', '1', '1', '1', '1', ' ', ' ', '1', '1', '1', '1', '1', '1', ' ', ' ', '1', '1', ' ', ' ', '1', '1', '1', '1', ' ', ' ', '1', '1', '1', ' ','1'], 
 ['1', '1', '1', '1', '1', '1', '1', '1', ' ', ' ', '1', '1', '1', '1', '1', '1', ' ', ' ', '1', '1', ' ', ' ', '1', '1', '1', '1', ' ', ' ', '1', '1', '1', '1','1']
 ]
@@ -57,6 +62,8 @@ SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = len(level_map) * TILE_SIZE
 GAMETITLE = "Plataformer Game"
 VERSION = 0.1
+
+HANDBAR_KEYS = [(1,K_1),(2,K_2),(3,K_3)]
 
 pyg.init()
 SCREEN = pyg.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),FULLSCREEN)
@@ -91,19 +98,35 @@ BPYG.create_font('arial',24,False,False) # 0 Buttons
 BPYG.create_font('arial',18,True,False) # 1 Debug Text
 BPYG.create_font('arial',36,True,False) # 2 Main Title
 BPYG.create_font('arial',14,False,False) # 3 Tiny Button
+BPYG.create_font('arial', 20, False,False) # 4 TextBox
 
 TEXTURES_FOLDER = './data/textures/'
 SOUNDS_FOLDER = './data/sounds/'
+PLAYER_COLORS = ["yellow","blue","green","purple","red"]
 
-# DataBase
+"""" DataBase"""
+db = DataBase('./data/data.db',True)
+
 MAX_SAVES_PROFILES = 10
+
+basePlayer = {
+    "name":"",
+    "color":"",
+    "inventory":{"handbar":[],"stored":[]},
+    "stats":{"level":1,"exp":0,"maxhealth":100,"health":100}
+}
+
+CONFIG_DEFAULT = {
+    "volume":1,
+    "RPC":True,
+    'fps':60
+}
+CURRENT_CONFIG = CONFIG_DEFAULT
 CONFIG_TABLE = "config"
 CONFIG_TABLE_COLUMNS = ["config",] # id INTEGER, config TEXT
-SAVES_TABLE = "" #
 
-db = DataBase('./data/data.db',True)
-db.create_table("config",["id INTEGER PRIMARY KEY AUTOINCREMENT","config TEXT"])
-#db.insert('config',CONFIG_TABLE_COLUMNS,["'{}'",])
+SAVES_TABLE = "" #
+SAVES_TABLE_COLUMNS = ["player",]
 
 """ DISCORD RICH PRESENCE SETUP"""
 

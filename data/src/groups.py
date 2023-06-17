@@ -9,7 +9,7 @@ from pygame.surface import Surface
 class TilesGroup(pyg.sprite.Group):
     def __init__(self):
         super().__init__()
-
+        self.player = None
     """
     def draw(self, surface: Surface) -> List[Rect]:
         return super().draw(surface)

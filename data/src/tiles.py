@@ -12,6 +12,7 @@ class Tile(pyg.sprite.Sprite):
         super().__init__()
         self.priority = 0
         self.type = "Tile"
+        self.collide = True
         if type(Size) == int:
             self.image= pyg.Surface((Size,Size))
         elif type(Size) in [tuple,list]:
@@ -26,7 +27,6 @@ class Tile(pyg.sprite.Sprite):
     def draw(self,surface):
         surface.blit(self.image,self.rect)
         
-
 class DeadPoint(Tile):
     def __init__(self, Pos, Size):
         super().__init__(Pos, Size)
@@ -95,7 +95,7 @@ class Spike(Tile):
             self.animation_index = 0
         self.image = pyg.transform.scale(self.animation[int(self.animation_index)],(TILE_SIZE,TILE_SIZE))
         r = self.image.get_rect()
-        r.center = self.rect.center
+        r.topleft = self.rect.topleft
         r.top =self.Pos[1]+TILE_SIZE
         r.height += 2
         self.rect = r
@@ -109,7 +109,7 @@ class Spike(Tile):
     def import_assets(self):
         path = TEXTURES_FOLDER+'/spike.png'
         s = spritesheet(path)
-        self.animation = s.images_at(((93,1,23,19),),0)
+        self.animation = s.images_at(((93,1,23,23),),0)
     
     def update(self,x_shift):
         self.animate()
@@ -117,3 +117,71 @@ class Spike(Tile):
     
     def draw(self,surface):
         surface.blit(self.image,self.rect)
+
+class Checkpoint(Tile):
+    def __init__(self, Pos, Size, color=C_SANDYBROWN):
+        super().__init__(Pos, Size, color=None)
+        self.import_assets()
+        self.animation_index = 0 # 0.15
+        self.image = pyg.transform.scale(self.animations[int(self.animation_index)],(TILE_SIZE,TILE_SIZE))
+
+        self.type = 'checkpoint'
+        self.collide = False
+    
+    def animate(self):
+        self.animation_index += .15
+        if self.animation_index > len(self.animations):
+            self.animation_index = 0
+        self.image = pyg.transform.scale(self.animations[int(self.animation_index)],(TILE_SIZE,TILE_SIZE))
+
+    def import_assets(self):
+        path = TEXTURES_FOLDER+'flag.png'
+        s = spritesheet(path)
+        self.animations = s.images_at(((1,1,32,31),(32,1,32,31),(64,1,32,31),(96,1,32,31)),0)
+
+    def update(self, x_shift):
+        self.animate()
+        return super().update(x_shift)
+    
+class Door(Tile):
+    def __init__(self, Pos, Size):
+        super().__init__(Pos, Size, None)
+        self.state = "close"
+        self.bstate = False
+        self.type = "action"
+        self.pos = Pos
+        self.import_assets()
+        self.image = pyg.transform.scale(self.images[self.state],(TILE_SIZE,TILE_SIZE))
+        self.collide = False
+        self.rect = self.image.get_rect(topleft=Pos)
+        self.hitbox = BPYG.draw_rect(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
+
+    def import_assets(self):
+        path = TEXTURES_FOLDER+'door.png'
+        s = spritesheet(path)
+        self.images = {"close":[],"open":[]}
+        
+        self.images['close'] = s.image_at((32,1,32,32),0)
+        self.images['open'] = s.image_at((1,1,32,32),0)
+
+    def action(self,player):
+        if BPYG.while_key_hold(K_KP_ENTER) or pyg.mouse.get_pressed(3)[2] and player.rect.colliderect(self.hitbox):
+            self.bstate = not self.bstate
+            if self.bstate:
+                self.state = "open"
+                self.collide = False
+            else:
+                self.state = "close"
+                self.collide = True
+
+            self.image = pyg.transform.scale(self.images[self.state],(TILE_SIZE,TILE_SIZE))
+            self.rect = self.image.get_rect(topleft=self.rect.topleft)
+            pyg.time.delay(100)
+    def update(self,x_shift):
+        player = self.groups()[0].player
+        if self.hitbox.colliderect(player.rect):
+            self.action(player)
+        return super().update(x_shift)
+    def draw(self,surface):
+        surface.blit(self.image,self.rect)
+        self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)

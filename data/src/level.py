@@ -30,12 +30,19 @@ class Level:
                 elif cell == '0':
                     self.world_spawn = (x,y)
                     player_sprite = player((x,y))
+                    self.tiles.player = player_sprite
                     self.player.add(player_sprite)
-                elif cell == '3':
+                elif cell == '2':
                     tile = SpikeBall((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell == '4':
+                elif cell == '3':
                     tile = Spike((x,y),TILE_SIZE)
+                    self.tiles.add(tile)
+                elif cell == '4':
+                    tile = Checkpoint((x,y),TILE_SIZE)
+                    self.tiles.add(tile)
+                elif cell =='5':
+                    tile = Door((x,y),TILE_SIZE)
                     self.tiles.add(tile)
         
         self.tiles.add(DeadPoint((0,SCREEN_HEIGHT+50),(SCREEN_WIDTH+60,15))) # Dead Point
@@ -60,6 +67,11 @@ class Level:
             self.world_shift = 0
             player.SPEED = 8
 
+    def collision(self,player,sprite):
+        self.check_take_damage(player,sprite)
+        if sprite.type == "action":
+            sprite.action(player)
+
     def horizontal_movement_collision(self):
         player= self.player.sprite
 
@@ -67,15 +79,17 @@ class Level:
         for sprite in self.tiles.sprites():
             if sprite.rect.colliderect(player.rect):
                 if player.direction.x <0:
-                    player.rect.left = sprite.rect.right
-                    player.on_left = True
+                    if sprite.collide:
+                        player.rect.left = sprite.rect.right
+                        player.on_left = True
                     self.current_x = player.rect.left
-                    self.check_take_damage(player,sprite)
+                    self.collision(player,sprite)
                 elif player.direction.x >0:
-                    player.rect.right = sprite.rect.left
-                    player.on_right =True
+                    if sprite.collide:
+                        player.rect.right = sprite.rect.left
+                        player.on_right =True
                     self.current_x = player.rect.right
-                    self.check_take_damage(player,sprite)
+                    self.collision(player,sprite)
         
         if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
             player.on_left = False
@@ -90,18 +104,20 @@ class Level:
         for sprite in self.tiles.sprites():
             if sprite.rect.colliderect(player.rect):
                 if player.direction.y > 0: 
-                    player.rect.bottom = sprite.rect.top
-                    player.direction.y = 0
-                    player.on_ground = True
+                    if sprite.collide:
+                        player.rect.bottom = sprite.rect.top
+                        player.direction.y = 0
+                        player.on_ground = True
+                    self.collision(player,sprite)
                     if not player.already_on_ground:
                         BPYG.play_sound(SOUNDS_FOLDER+'fall.wav',.45)
                         player.already_on_ground = True
-                    self.check_take_damage(player,sprite)
                 elif player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
-                    player.direction.y = 0
-                    player.on_ceiling = True
-                    self.check_take_damage(player,sprite)
+                    if sprite.collide:
+                        player.rect.top = sprite.rect.bottom
+                        player.direction.y = 0
+                        player.on_ceiling = True
+                    self.collision(player,sprite)
 
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False

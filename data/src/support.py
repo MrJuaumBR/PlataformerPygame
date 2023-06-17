@@ -56,6 +56,13 @@ class BetterPyGame():
             self.fonts.append(f)
         return (self.fonts.index(f), f)
     
+    def while_key_hold(self,key):
+        keys = pyg.key.get_pressed()
+        if keys[key]:
+            return True
+        else:
+            return False
+
     def draw_text(self, text="A text",Pos=(0,0),font=0,antialias=False,color=(0,0,0), background_color=None) -> pyg.Surface:
         """
         Draw a text in SCREEN
@@ -75,7 +82,7 @@ class BetterPyGame():
         g.topleft= Pos
         self.SCREEN.blit(r,g)
         return g
-    
+
     def draw_button(self, text="A Button", Pos=(0,0),font=0,colors=((0,0,0),(255,255,255))) -> bool:
         """
         Draw a button in SCREEN and return a boolean
@@ -113,6 +120,27 @@ class BetterPyGame():
             r = pyg.draw.rect(self.SCREEN,color,Rect(Pos[0],Pos[1],Size[0],Size[1]))
         return r
     
+    def draw_rect2(self,Pos=(0,0), Size=(0,0), color=(0,0,0), alpha=None) -> Rect:
+        """
+        Draw a rectangle in screen and return it
+        Pos = Position
+        Size = Size of rectangle
+        color = RGB Color (R,G,B)
+        alpha = transparency (0 -> 255)
+        """
+        if type(alpha) == int:
+            s = pyg.Surface(Size,pyg.SRCALPHA)
+            R,G,B = color
+            color = (R,G,B,alpha)
+            s.fill(color)
+            r = s.get_rect(center=Pos)
+            self.SCREEN.blit(s,r)
+        else:
+            r = Rect(Pos[0],Pos[1],Size[0],Size[1])
+            r.center = Pos
+            pyg.draw.rect(self.SCREEN,color,r)
+        return r
+
     def draw_select(self,Pos=(0,0),font=0,colors=((0,0,0),(100,100,100)),options=[],current_option=0):
         if type(font) == int:
             font = self.fonts[font]
@@ -131,6 +159,53 @@ class BetterPyGame():
                 current_option = 0
         return current_option
 
+    def draw_textbox(self,rect=(0,0),colors=((0,0,0),(100,100,100),(100,100,200)),font=0,active=False,current_text="",oBlacklisted=[]):
+        """
+        rect = Rectangle(X,Y,W,H)
+        colors = 3 Colors in RGB ((1th is text color),(2nd is textbox bg when not active),(3rd is textbox bg when active))
+        font= font to render
+        active = Bool to check if it active to edit
+        current_text= is the current text, make it to "" in start.
+        oBlacklisted = Key blacklisted(will be add to a list)
+        """
+        blacklist = [K_RETURN,K_ESCAPE,K_TAB,K_DELETE,K_BACKSPACE]
+        for b in oBlacklisted:
+            if not b in blacklist:
+                blacklist.append(b)
+
+        width = 0
+        if type(font) == int:
+            font = self.fonts[font]
+        if len(str(current_text)) == 0:
+            my_text = "                         "
+        else:
+            my_text = current_text
+        if len(str(current_text)) > 1:
+            width += int(font.size(str(current_text))[0] * 1.1)
+        if active:
+            bg_c = 2
+        else:
+            bg_c = 1
+        box2 =self.draw_text(str(my_text),(rect[0],rect[1]),font,True,colors[0],colors[bg_c])
+        if pyg.mouse.get_pressed(3)[0]:
+            if box2.collidepoint(pyg.mouse.get_pos()):
+                active = True
+            else:
+                active = False
+        else:
+            if not active:
+                active = False
+        if active:
+            if not width >= (self.SCREEN.get_size()[0]*2):
+                if self.while_key_hold(K_BACKSPACE):
+                    current_text = current_text[:-1]
+                    pyg.time.delay(100)
+                for ev in pyg.event.get():
+                    if ev.type == KEYDOWN:
+                        if not ev.key in blacklist:
+                            current_text += ev.unicode
+        return (active,current_text)
+
     def set_volume(self,volume=1):
         """
         Set All sounds and musics volume
@@ -147,7 +222,14 @@ class BetterPyGame():
         s.set_volume(individual_volume)
         s.play()
 
-    
+    def set_color(self, surface,color):
+        """Fill all pixels of the surface with color, preserve transparency."""
+        w, h = surface.get_size()
+        r, g, b = color
+        for x in range(w):
+            for y in range(h):
+                a = surface.get_at((x, y))[3]
+                surface.set_at((x, y), pyg.Color(r, g, b, a))
 
 class DataBase():
     def __init__(self,database='/database.db',autocommit=True):
@@ -159,12 +241,32 @@ class DataBase():
         val = ""
         for i,value in enumerate(values):
             if value == values[-1]:
+                v = f""" "{value}" """
+            else:
+                v = f""" "{value}", """
+            val += v
+        return val
+    
+    def co_(self,columns:list) -> str:
+        val = ""
+        for i,value in enumerate(columns):
+            if value == columns[-1]:
                 v = value
             else:
                 v = value+", "
             val += v
         return val
-    
+
+    def jo_(self,columns:list,values:list) -> str:
+        val = ""
+        for i,value in enumerate(values):
+            if value == values[-1]:
+                v = columns[i] + f"""="{value}" """
+            else:
+                v = columns[i] + f"""="{value}", """
+            val += v
+        return val
+
     def ac(self):
         if self.autocommit:
             self.db.commit()
@@ -183,18 +285,38 @@ class DataBase():
         name = Table Name
         valies = List of Values Name & Types ["name TEXT","value INTEGER"] ...
         """
-        val = self.to_(values)
+        val = self.co_(values)
         self.cur.execute(f"""CREATE TABLE IF NOT EXISTS {name} ({val})""")
         self.ac()
 
-    def get(self,id:int,table:str):
+    def get(self,id,table:str):
+        if type(id) == str:
+            id = f'{id}'
         return self.cur.execute(f"""
-        SELECT * FROM {table} WHERE id={id}
-        """).fetchone()
+        SELECT * FROM {table} WHERE id=?
+        """,(id,)).fetchone()
     
+    def get_all(self,table:str):
+        return self.cur.execute(f"""
+                                SELECT * FROM {table}
+                                """).fetchall()
+
     def insert(self,table:str,columns:list,values:list):
         values = self.to_(values)
-        columns = self.to_(columns)
-
-        self.cur.execute(f"INSERT INTO {table} ({columns}) VALUES ({values})")
+        columns = self.co_(columns)
+        self.cur.execute(f"""INSERT INTO {table} ({columns}) VALUES({values})""")
         self.ac()
+
+    def update(self,table:str,id:int,columns:list,values:list):
+        val = self.jo_(columns,values)
+        self.cur.execute(f"""
+        UPDATE {table} SET {val} WHERE id={id}
+        """)
+        self.ac()
+
+    def delete(self,id,table:str):
+        if self.get(id,table):
+            self.cur.execute(f"""
+                DELETE FROM {table} WHERE id=?
+            """,(id,))
+            self.ac()

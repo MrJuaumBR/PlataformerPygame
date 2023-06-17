@@ -8,10 +8,16 @@ from random import randint
 class player(pyg.sprite.Sprite):
     def __init__(self,pos):
         super().__init__()
+
+        self.current_color = "yellow"
+
         self.import_character_assets()
+
         self.frame_index = 0
         self.animation_speed = 0.15
         self.type = "Player"
+
+        
 
         # Player Draw
         self.image = self.animations['idle'][self.frame_index]
@@ -130,7 +136,7 @@ class player(pyg.sprite.Sprite):
             self.rect = self.image.get_rect(center=self.rect.center)
 
     def import_character_assets(self):
-        character_path = "./data/textures/player.png"
+        character_path = f"./data/textures/player_{self.current_color}.png"
         self.animations = {'idle':[],'run':[],'jump':[],'fall':[],'dead':[]}
         ss = spritesheet(character_path)
         self.animations['run'] = ss.images_at([(0,0,16,16),(16,0,16,16),(32,0,16,16)],0)
@@ -173,17 +179,39 @@ class player(pyg.sprite.Sprite):
         self.rect.y += self.direction.y
 
     def jump(self):
-        self.direction.y = self.jump_speed
+        if not self.health <= 0:
+            self.direction.y = self.jump_speed
 
     def draw(self):
         SCREEN.blit(self.image,self.rect)
 
     def update(self):
-        if not self.locked:
+        if not self.locked and self.health > 0:
             self.get_input()
             self.get_status()
             self.animate()
             self.heal_logic()
+        elif self.health <= 0:
+            self.animate()
+            self.heal_logic()
+            self.direction.x = 0
+            self.direction.y = 0
+            self.on_ground = False
+            self.on_ceiling = False
+            self.on_left = False
+            self.on_right = False
+            
         else:
             self.direction.x = 0
             self.direction.y = 0
+
+class savePlayer():
+    def __init__(self,name:str,color:tuple) -> None:
+        self.color = color
+        self.name = name
+
+    def get(self):
+        b = basePlayer
+        b["name"] = self.name
+        b["color"] = self.color
+        return b
