@@ -34,7 +34,7 @@ PlataformerGame *Restarted*
 - Discord Rich Presence
 
 # How to edit the text map?
-1 - we need to go to the settings file:
+1  - we need to go to the settings file:
 
     - Open game folder
 
@@ -44,14 +44,14 @@ PlataformerGame *Restarted*
 
     - And Open settings.py file in noteblock or any text editor
 
-2 - find the ``level_map`` variable
+2- find the ``level_map`` variable
 
     - It can be found at 40th line
 
-3 - change it like you want
+3- change it like you want
     - Above i will give a tiles dict
 
-"None"  - Air
+"None" - Air
 
 0 - Player Spawn
 
