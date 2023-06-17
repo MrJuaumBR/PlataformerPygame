@@ -46,7 +46,7 @@ PlataformerGame *Restarted*
 
 2- find the ``level_map`` variable
 
-    - It can be found at 40th line
+    - It can be found next to 45th line
 
 3- change it like you want
     - Above i will give a tiles dict
