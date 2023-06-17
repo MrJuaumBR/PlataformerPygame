@@ -67,6 +67,4 @@ PlataformerGame *Restarted*
 
 **ALL HELP WILL BE GREAT**
 
-{% include youtube.html id="Z8YsoE_-bUE" %}
-
 [Discord - Potato Game League](https://discord.gg/fb84sHDX7R)
