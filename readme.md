@@ -14,6 +14,10 @@ PlataformerGame *Restarted*
 # I can edit map?
 **Yes, you can but only the text version, you can learn how to edit [here](#How-to-edit-the-text-map)**
 
+# About development time:
+- **We working very hard to make 1 Commit p/ day**
+- **this game was developed for 1 people, please give me time to make this!**
+
 # Requirements:
 - Python(3.10)
 - PyGame
@@ -47,7 +51,7 @@ PlataformerGame *Restarted*
 
 2- find the ``level_map`` variable
 
-    - It can be found at 40th line
+    - It can be found next to 45th line
 
 3- change it like you want
     - Above i will give a tiles dict
