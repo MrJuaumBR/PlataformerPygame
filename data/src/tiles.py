@@ -147,11 +147,11 @@ class Door(Tile):
     def __init__(self, Pos, Size):
         super().__init__(Pos, Size, None)
         self.state = "close"
-        self.bstate = False
+        self.bstate = True
         self.type = "action"
         self.pos = Pos
         self.import_assets()
-        self.image = pyg.transform.scale(self.images[self.state],(TILE_SIZE,TILE_SIZE))
+        self.image = self.images[self.state]
         self.collide = False
         self.rect = self.image.get_rect(topleft=Pos)
         self.hitbox = BPYG.draw_rect(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
@@ -160,9 +160,9 @@ class Door(Tile):
         path = TEXTURES_FOLDER+'door.png'
         s = spritesheet(path)
         self.images = {"close":[],"open":[]}
-        
-        self.images['close'] = s.image_at((32,1,32,32),0)
-        self.images['open'] = s.image_at((1,1,32,32),0)
+        ci = s.image_at((42,0,7,32),0)
+        self.images['close'] = pyg.transform.scale(ci,(ci.get_rect().width,TILE_SIZE))
+        self.images['open'] = pyg.transform.scale(s.image_at((0,0,32,32),0),(TILE_SIZE,TILE_SIZE))
 
     def action(self,player):
         if BPYG.while_key_hold(K_KP_ENTER) or pyg.mouse.get_pressed(3)[2] and player.rect.colliderect(self.hitbox):
@@ -171,17 +171,83 @@ class Door(Tile):
                 self.state = "open"
                 self.collide = False
             else:
+                if player.rect.colliderect(self.rect):
+                    if player.facing == "left":
+                        a = TILE_SIZE
+                    elif player.facing == "right":
+                        a = -TILE_SIZE
+                    player.rect.x += a
                 self.state = "close"
                 self.collide = True
 
-            self.image = pyg.transform.scale(self.images[self.state],(TILE_SIZE,TILE_SIZE))
+            self.sound = SOUNDS_FOLDER+f'door_{self.state}.wav'
+            BPYG.play_sound(self.sound,SOUNDS_VOLUME)
+            self.image = self.images[self.state]
             self.rect = self.image.get_rect(topleft=self.rect.topleft)
-            pyg.time.delay(100)
+            pyg.time.delay(250)
+    
     def update(self,x_shift):
         player = self.groups()[0].player
         if self.hitbox.colliderect(player.rect):
             self.action(player)
         return super().update(x_shift)
+    
     def draw(self,surface):
         surface.blit(self.image,self.rect)
         self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
+
+class sCapsule(Tile):
+    def __init__(self, Pos, Size):
+        super().__init__(Pos, Size, None)
+        self.import_assets()
+        self.image_index = 0
+
+        self.image = pyg.transform.scale((self.images[int(self.image_index)]),(TILE_SIZE,TILE_SIZE))
+        self.rect = self.image.get_rect(topleft=Pos)
+
+        self.type = "action"
+
+        self.used = False
+
+        self.hitbox = BPYG.draw_rect(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
+
+    def import_assets(self):
+        path = TEXTURES_FOLDER+'sCapsule.png'
+        s = spritesheet(path)
+        self.images = s.images_at(((11,5,42,56),(71,5,42,56)),0)
+
+    def check_used(self):
+        if self.used:
+            self.image_index = 1
+        else:
+            self.image_index = 0
+        self.image = pyg.transform.scale((self.images[int(self.image_index)]),(TILE_SIZE,TILE_SIZE))
+
+    def action(self,player):
+        if self.used:
+            self.collide = False
+            player.show = False
+        else:
+            self.collide = True
+            player.show = True
+        if BPYG.while_key_hold(K_KP_ENTER) or BPYG.while_key_hold(KSCAN_KP_ENTER) or pyg.mouse.get_pressed(3)[2] and player.rect.colliderect(self.hitbox): 
+            self.used = not self.used
+            self.check_used()
+            if self.used:
+                player.rect.center = self.rect.center
+                player.canMove = False
+                self.groups()[0].background.setTimePass(15)
+            else:
+                player.canMove = True
+                self.groups()[0].background.setTimePass(30)
+            pyg.time.delay(250)
+   
+    def update(self,x_shift):
+        player = self.groups()[0].player
+        if self.hitbox.colliderect(player.rect):
+            self.action(player)
+        return super().update(x_shift)
+
+    def draw(self,surface):
+        self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
+        return super().draw(surface)

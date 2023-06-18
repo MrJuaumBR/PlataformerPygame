@@ -17,13 +17,13 @@ class player(pyg.sprite.Sprite):
         self.animation_speed = 0.15
         self.type = "Player"
 
-        
-
+    
         # Player Draw
         self.image = self.animations['idle'][self.frame_index]
         self.image = pyg.transform.scale(self.image,size=(64,64))
         self.rect = self.image.get_rect(topleft=pos)
         self.priority = 1000
+        self.show = True
 
         # Player Movement
         self.direction = pyg.math.Vector2(0,0)
@@ -31,6 +31,7 @@ class player(pyg.sprite.Sprite):
         self.gravity = 0.8
         self.jump_speed = -16
         self.locked = False
+        self.canMove = True
 
         # Player Status
         self.status = "idle"
@@ -67,11 +68,11 @@ class player(pyg.sprite.Sprite):
             self.direction.x = 5 * a
             if self.health <= 0:
                 self.health = 0
-                BPYG.play_sound(SOUNDS_FOLDER+'dead.wav',.45)
+                BPYG.play_sound(SOUNDS_FOLDER+'dead.wav',SOUNDS_VOLUME)
                 self.status = "dead"   
                 self.respawn_cooldown = 60 * 5
             else:
-                BPYG.play_sound(SOUNDS_FOLDER+'hurt.wav',.3)
+                BPYG.play_sound(SOUNDS_FOLDER+'hurt.wav',SOUNDS_VOLUME)
                 
     def heal_damage(self,heal):
         if self.heal_frame <= 0 and self.status != "dead":
@@ -108,6 +109,7 @@ class player(pyg.sprite.Sprite):
                 self.locked = False
                 self.health = self.maxHealth // 2
                 self.respawned = True
+                self.canMove = True
 
     def animate(self):
         animation = self.animations[self.status]
@@ -146,7 +148,7 @@ class player(pyg.sprite.Sprite):
         self.animations['dead'] = (ss.image_at((48,16,16,16),0),)
 
     def get_input(self):
-        if self.status != "dead" and not self.locked:
+        if self.status != "dead" and self.canMove:
             keys = pyg.key.get_pressed()
             if keys[K_RIGHT] or keys[K_d]:
                 self.direction.x = 1
@@ -192,6 +194,7 @@ class player(pyg.sprite.Sprite):
             self.animate()
             self.heal_logic()
         elif self.health <= 0:
+            self.canMove = False
             self.animate()
             self.heal_logic()
             self.direction.x = 0

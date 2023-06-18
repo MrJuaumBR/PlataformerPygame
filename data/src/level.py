@@ -15,6 +15,8 @@ class Level:
         self.world_shift = 0
         self.current_x = 0
 
+        self.background = None
+
         self.world_spawn = (0,0)
 
     def setup_level(self,layout):
@@ -44,6 +46,9 @@ class Level:
                 elif cell =='5':
                     tile = Door((x,y),TILE_SIZE)
                     self.tiles.add(tile)
+                elif cell == '6':
+                    tile = sCapsule((x,y),TILE_SIZE)
+                    self.tiles.add(tile)
         
         self.tiles.add(DeadPoint((0,SCREEN_HEIGHT+50),(SCREEN_WIDTH+60,15))) # Dead Point
 
@@ -69,8 +74,6 @@ class Level:
 
     def collision(self,player,sprite):
         self.check_take_damage(player,sprite)
-        if sprite.type == "action":
-            sprite.action(player)
 
     def horizontal_movement_collision(self):
         player= self.player.sprite
@@ -110,7 +113,8 @@ class Level:
                         player.on_ground = True
                     self.collision(player,sprite)
                     if not player.already_on_ground:
-                        BPYG.play_sound(SOUNDS_FOLDER+'fall.wav',.45)
+                        if player.canMove:
+                            BPYG.play_sound(SOUNDS_FOLDER+'fall.wav',SOUNDS_VOLUME)
                         player.already_on_ground = True
                 elif player.direction.y < 0:
                     if sprite.collide:
@@ -125,7 +129,9 @@ class Level:
         if player.on_ceiling and player.direction.y > 0:
             player.on_ceiling = False
     
-    def run(self):
+    def run(self,bakcground):
+        self.background = bakcground
+        self.tiles.background = self.background
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
         self.scroll_x()
@@ -138,4 +144,5 @@ class Level:
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
 
-        self.player.draw(self.display_surface)
+        if self.player.sprite.show:
+            self.player.draw(self.display_surface)

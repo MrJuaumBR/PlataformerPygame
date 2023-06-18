@@ -15,4 +15,4 @@ if __name__ == '__main__':
     else:
         print('Config line not exists!')
         db.insert('config',CONFIG_TABLE_COLUMNS,[CONFIG_DEFAULT,])
-    main()     
+    main()

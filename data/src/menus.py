@@ -5,6 +5,7 @@ from data.src.settings import *
 from data.src.tiles import *
 from data.src.level import Level
 from data.src.player import savePlayer
+from data.src.groups import backgroundGroup
 from ast import literal_eval
 
 GAME_RUNNING = True
@@ -27,12 +28,13 @@ def main():
     FPS = CURRENT_CONFIG['fps']
 
     pimg =pyg.transform.scale(spritesheet(TEXTURES_FOLDER+f"player_yellow.png").image_at((16,16,16,16),0),(TILE_SIZE*2,TILE_SIZE*2))
-    if GAME_RUNNING:
+    if GAME_RUNNING and CURRENT_CONFIG['RPC']:
         DISCORD.start()
     while True:
         if AllScreenDraw(): # All Screen 
-            GAME_RUNNING = False
-            DISCORD.join()
+            if CURRENT_CONFIG['RPC']:
+                DISCORD.join(0.3)
+                GAME_RUNNING = False
             pyg.quit()
             exit()
         BPYG.draw_text(GAMETITLE,(HALF_SCREEN_SIZE[0]+100,HALF_SCREEN_SIZE[1]),2,True,(0,0,0))
@@ -53,14 +55,15 @@ def main():
             db.update('config',1,CONFIG_TABLE_COLUMNS, [CURRENT_CONFIG,])
         if BTN_exit:
             GAME_RUNNING = False
-            DISCORD.join()
+            DISCORD.join(0.3)
             pyg.quit()
             exit()
 
         for ev in pyg.event.get():
             if ev.type == QUIT:
-                GAME_RUNNING = False
-                DISCORD.join()
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
         
@@ -68,7 +71,7 @@ def main():
         SCREEN.fill('white')
         CLOCK.tick(FPS)
     GAME_RUNNING = False
-    DISCORD.join()
+    DISCORD.join(0.3)
     pyg.quit()
     exit()
 
@@ -113,8 +116,9 @@ def options():
         index_debug = BPYG.draw_select((HALF_SCREEN_WIDTH-200,325),1,(C_BLACK,C_BEIGE),list_debug,index_debug)
         for ev in pyg.event.get():
             if ev.type == QUIT:
-                GAME_RUNNING = False
-                DISCORD.join()
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
 
@@ -177,8 +181,9 @@ def save_select():
                 saves = db.get_all('saves')
         for ev in pyg.event.get():
             if ev.type == QUIT:
-                GAME_RUNNING = False
-                DISCORD.join()
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
 
@@ -214,7 +219,7 @@ def create_character():
         if len(warn) >0:
             warn_frames += 1
             BPYG.draw_text(warn,(SCREEN_WIDTH-300,75),1,True,C_WHITE,C_RED)
-            if warn_frames == 60*3:
+            if warn_frames == FPS*3:
                 warn_frames = 0
                 warn = ""
         if BTN_create:
@@ -224,8 +229,9 @@ def create_character():
                 return (True,savePlayer(player_name,PLAYER_COLORS[index_player_color]))
         for ev in pyg.event.get():
             if ev.type == QUIT:
-                GAME_RUNNING = False
-                DISCORD.join()
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
 
@@ -236,7 +242,7 @@ def create_character():
 def game(player):
     run = True
     menu_open = False
-
+    background = backgroundGroup()
     level = Level(level_map,SCREEN)
     level.player.sprite.current_color = player['color']
     level.player.sprite.import_character_assets()
@@ -248,6 +254,10 @@ def game(player):
             BPYG.draw_text("Menu",(HALF_SCREEN_WIDTH+225,50),0,True,C_WHITE) # Menu Part
             BTN_resume = BPYG.draw_button("RESUME",(HALF_SCREEN_WIDTH+225,75),0,(C_WHITE,C_GREEN))
 
+            BTN_exit1 = BPYG.draw_button("Exit to save selector",(HALF_SCREEN_WIDTH+225,100),0,(C_WHITE,C_RED))
+            BTN_exit2 = BPYG.draw_button("Exit to window",(HALF_SCREEN_WIDTH+225, 125), 0, (C_WHITE,C_RED))
+
+            BPYG.draw_text(background.getTime()+", "+background.getDay(),(HALF_SCREEN_WIDTH+225,HALF_SCREEN_HEIGHT+100),0,True,C_WHITE)
             BPYG.draw_text("Inventory",(HALF_SCREEN_WIDTH+225,HALF_SCREEN_HEIGHT+125),0,True,C_WHITE) # Inventory Part
             inv_block_pos = [HALF_SCREEN_WIDTH+ 225,HALF_SCREEN_HEIGHT+175]
             for i in range(5):
@@ -261,6 +271,13 @@ def game(player):
             if BTN_resume:
                 menu_open = False
                 level.player.sprite.locked = False
+            elif BTN_exit1:
+                run = False
+            elif BTN_exit2:
+                GAME_RUNNING =False
+                DISCORD.join(0.3)
+                pyg.quit()
+                exit()
         else:
             level.player.sprite.locked = False
         
@@ -280,16 +297,20 @@ def game(player):
             run = False
         for ev in pyg.event.get():
             if ev.type == QUIT:
-                GAME_RUNNING = False
-                DISCORD.join()
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
             elif ev.type == KEYDOWN:
                 if ev.key == K_ESCAPE:
                     menu_open = not menu_open
+                elif ev.key == K_l:
+                    background.skipTime(hours=1)
 
+        background.update(level.player.sprite.locked)
         pyg.display.update()
         CLOCK.tick(FPS)
 
-        SCREEN.fill(C_LIGHTSKYBLUE)
-        level.run()
+        background.draw(SCREEN)
+        level.run(background)

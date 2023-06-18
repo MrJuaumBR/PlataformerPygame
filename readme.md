@@ -20,18 +20,19 @@ PlataformerGame *Restarted*
 - pypresence
 - ast
 
-# Future ideas:
-- Save System
-- Time System(Day & Night)
+# Future ideas(+ = Added):
+- +Save System
+- +Time System(Day & Night)
 - World Edit & Create
 - Enemys
-- Life System
+- +Life System
 - Tools & Drops
 - RPG Games GUI
-- Main Menu
-- Pause Menu
+- +Main Menu
+- +Pause Menu
 - Inventory
-- Discord Rich Presence
+- +Discord Rich Presence
+- +Player Color Select
 
 # How to edit the text map?
 1  - we need to go to the settings file:
@@ -65,8 +66,10 @@ PlataformerGame *Restarted*
 
 5 - Door
 
+6 - Sleep Capsule(Time pass 2x)
+
 **ALL HELP WILL BE GREAT**
 
-{% include youtube.html id="Z8YsoE_-bUE" %}
-
 [Discord - Potato Game League](https://discord.gg/fb84sHDX7R)
+
+[Youtube - 1th Preview Video](https://youtu.be/Z8YsoE_-bUE)
