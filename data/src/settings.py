@@ -118,13 +118,16 @@ basePlayer = {
     "name":"",
     "color":"",
     "inventory":{"handbar":[],"stored":[]},
-    "stats":{"level":1,"exp":0,"maxhealth":100,"health":100}
+    "stats":{"level":1,"exp":0,"maxhealth":100,"health":100},
+    "checkpoint":(0,0),
+    "time":{"hour":0,"minute":0,"day":1}
 }
 
 CONFIG_DEFAULT = {
     "volume":1,
     "RPC":True,
-    'fps':60
+    'fps':60,
+    "autosave":True
 }
 CURRENT_CONFIG = CONFIG_DEFAULT
 CONFIG_TABLE = "config"

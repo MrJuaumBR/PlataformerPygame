@@ -13,15 +13,15 @@ class Level:
         self.display_surface = surface
         self.setup_level(level_data)
         self.world_shift = 0
+        self.all_world_shift = 0
         self.current_x = 0
 
         self.background = None
 
-        self.world_spawn = (0,0)
-
     def setup_level(self,layout):
         self.tiles = TilesGroup()
         self.player = pyg.sprite.GroupSingle()
+        self.player.me = self
         for row_index, row in enumerate(layout):
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_SIZE
@@ -30,10 +30,10 @@ class Level:
                     tile = Tile((x,y),TILE_SIZE)
                     self.tiles.add(tile)
                 elif cell == '0':
-                    self.world_spawn = (x,y)
                     player_sprite = player((x,y))
                     self.tiles.player = player_sprite
                     self.player.add(player_sprite)
+                    self.player.sprite.checkpoint = (x,y)
                 elif cell == '2':
                     tile = SpikeBall((x,y),TILE_SIZE)
                     self.tiles.add(tile)
@@ -132,13 +132,13 @@ class Level:
     def run(self,bakcground):
         self.background = bakcground
         self.tiles.background = self.background
+        self.all_world_shift += self.world_shift
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
         self.scroll_x()
         
         self.player.update()
         if self.player.sprite.respawned:
-            self.player.sprite.rect.topleft = self.world_spawn
             self.player.sprite.respawned = False
 
         self.horizontal_movement_collision()

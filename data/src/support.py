@@ -310,8 +310,8 @@ class DataBase():
     def update(self,table:str,id:int,columns:list,values:list):
         val = self.jo_(columns,values)
         self.cur.execute(f"""
-        UPDATE {table} SET {val} WHERE id={id}
-        """)
+        UPDATE {table} SET {val} WHERE id=?
+        """, (id,))
         self.ac()
 
     def delete(self,id,table:str):

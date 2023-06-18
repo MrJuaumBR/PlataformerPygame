@@ -45,16 +45,16 @@ class backgroundGroup(pyg.sprite.Group):
 
     def time_logic(self):
         self.c_frames += 1
-        if self.c_frames == self.maxFrames:
+        if self.c_frames >= self.maxFrames:
             self.c_frames = 0
             self.minutes += 1
-        if self.minutes == self.maxminutes:
+        if self.minutes >= self.maxminutes:
             self.minutes = 0
             self.hours += 1
-        if self.hours == self.maxHours:
+        if self.hours >= self.maxHours:
             self.day += 1
             self.hours = 0
-        if self.hours >= 18:
+        if self.hours >= 18 or self.hours < 3:
             self.day_state = "night"
         elif self.hours < 12 and self.hours >= 3:
             self.day_state = "morning"
@@ -68,10 +68,19 @@ class backgroundGroup(pyg.sprite.Group):
         self.minutes += minutes
 
     def getTime(self):
-        return f"{self.hours}:{self.minutes}"
+        h = self.hours
+        if self.hours<10:
+            h = f'0{self.hours}'
+        m = self.minutes
+        if self.minutes<10:
+            m = f'0{self.minutes}'
+        return f"{h}:{m}"
     
     def getDay(self):
-        return f"{self.day}"
+        d = self.day
+        if self.day < 10:
+            d = f'0{self.day}'
+        return f"{d}"
 
     def setTimePass(self,FPS=30):
         self.maxFrames = FPS

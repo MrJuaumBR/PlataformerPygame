@@ -134,12 +134,16 @@ class Checkpoint(Tile):
             self.animation_index = 0
         self.image = pyg.transform.scale(self.animations[int(self.animation_index)],(TILE_SIZE,TILE_SIZE))
 
+    def action(self,player):
+        if player.rect.colliderect(self.rect):
+            player.checkpoint = self.rect.center
     def import_assets(self):
         path = TEXTURES_FOLDER+'flag.png'
         s = spritesheet(path)
         self.animations = s.images_at(((1,1,32,31),(32,1,32,31),(64,1,32,31),(96,1,32,31)),0)
 
     def update(self, x_shift):
+        self.action(self.groups()[0].player)
         self.animate()
         return super().update(x_shift)
     
@@ -147,12 +151,12 @@ class Door(Tile):
     def __init__(self, Pos, Size):
         super().__init__(Pos, Size, None)
         self.state = "close"
-        self.bstate = True
+        self.bstate = False
         self.type = "action"
         self.pos = Pos
         self.import_assets()
         self.image = self.images[self.state]
-        self.collide = False
+        self.collide = True
         self.rect = self.image.get_rect(topleft=Pos)
         self.hitbox = BPYG.draw_rect(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
 

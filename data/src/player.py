@@ -17,7 +17,7 @@ class player(pyg.sprite.Sprite):
         self.animation_speed = 0.15
         self.type = "Player"
 
-    
+        self.checkpoint = (0,0)
         # Player Draw
         self.image = self.animations['idle'][self.frame_index]
         self.image = pyg.transform.scale(self.image,size=(64,64))
@@ -104,12 +104,23 @@ class player(pyg.sprite.Sprite):
             BPYG.draw_text(f"You died, {int(self.respawn_cooldown//60)}s to respawn",(self.rect.centerx,self.rect.centery-125),0,True,C_RED)
             self.respawn_cooldown -= 1
             if self.respawn_cooldown <= 0:
+                fix = 0
+                if self.rect.x > self.checkpoint[0]:
+                    fix = -1
+                elif self.rect.x < self.checkpoint[0]:
+                    fix = 1
+                else:
+                    fix = 0
+                
+                self.groups()[0].me.world_shift = int(self.checkpoint[0]-self.rect.x)*fix #world_shift = self.rect.center[0] - self.groups()[0].world_shift
+                self.rect.center = self.checkpoint # Set Checkpoint
                 self.respawn_cooldown = 0
                 self.status = "idle"
                 self.locked = False
                 self.health = self.maxHealth // 2
                 self.respawned = True
                 self.canMove = True
+                
 
     def animate(self):
         animation = self.animations[self.status]
@@ -212,9 +223,41 @@ class savePlayer():
     def __init__(self,name:str,color:tuple) -> None:
         self.color = color
         self.name = name
+        self.maxHealth = 0
+        self.health = 0
+        self.checkpoint = (0,0)
+        self.time = {"hour":0,"minute":0,"day":1}
 
+    def update(self,level):
+        player = level.player.sprite
+        bg = level.background
+        self.time["hour"] = bg.hours
+        self.time["minute"] = bg.minutes
+        self.time["day"] = bg.day
+
+        self.checkpoint = player.checkpoint
+        self.maxHealth = player.maxHealth
+        self.health =player.health
+
+    def update2(self,to_:dict):
+        self.time["hour"] = to_["time"]['hour']
+        self.time["minute"] = to_["time"]['minute']
+        self.time["day"] = to_["time"]['day']
+
+        self.checkpoint = to_['checkpoint']
+        self.maxHealth = to_['stats']['maxhealth']
+        self.health =   to_['stats']['health']
+        self.name = to_['name']
+        self.color = to_['color']
+    
     def get(self):
         b = basePlayer
         b["name"] = self.name
         b["color"] = self.color
+
+        b["checkpoint"] = self.checkpoint
+
+        b["time"] = self.time
+        b["stats"]["maxhealth"] = self.maxHealth
+        b["stats"]["health"] = self.health
         return b

@@ -50,6 +50,7 @@ def main():
             CURRENT_CONFIG['volume'] = sound_level/100
             CURRENT_CONFIG['RPC'] = discord_rpc
             CURRENT_CONFIG['fps'] = fps_v
+            CURRENT_CONFIG['autosave'] = autosave
             FPS = fps_v
             BPYG.volume = CURRENT_CONFIG['volume']
             db.update('config',1,CONFIG_TABLE_COLUMNS, [CURRENT_CONFIG,])
@@ -76,7 +77,7 @@ def main():
     exit()
 
 def options():
-    global discord_rpc, sound_level,fps_v
+    global discord_rpc, sound_level,fps_v, autosave
     run = True
     list_discord_rpc = [True,False]
     index_discord_rpc = list_discord_rpc.index(CURRENT_CONFIG['RPC'])
@@ -90,6 +91,10 @@ def options():
     index_fps = list_fps.index(int(CURRENT_CONFIG['fps']))
     fps_v = list_fps[index_fps]
 
+    list_autosave = [True,False]
+    index_autosave = list_autosave.index(CURRENT_CONFIG['autosave'])
+    autosave = list_autosave[index_autosave]
+
     list_debug = list_discord_rpc
     index_debug = 0
     debug_v = list_debug[index_debug]
@@ -97,6 +102,7 @@ def options():
         discord_rpc = list_discord_rpc[index_discord_rpc]
         sound_level = list_sound_level[index_sound_level]
         fps_v = list_fps[index_fps]
+        autosave = list_autosave[index_autosave]
         debug_v = list_debug[index_debug]
         if AllScreenDraw():
             run = False
@@ -112,8 +118,11 @@ def options():
         BPYG.draw_text('This affect how the time in game pass, see the time calc is 60 frames = 1 second, and this calc dont change.',(HALF_SCREEN_WIDTH-250,270),3,True,C_RED)
         index_fps = BPYG.draw_select((HALF_SCREEN_WIDTH-200,250),1,((0,0,0),C_BEIGE),list_fps,index_fps)
 
-        BPYG.draw_text('Debug(Soon): ',(HALF_SCREEN_WIDTH-210,300), 1, True, C_BLACK)
-        index_debug = BPYG.draw_select((HALF_SCREEN_WIDTH-200,325),1,(C_BLACK,C_BEIGE),list_debug,index_debug)
+        BPYG.draw_text("Autosave: ",(HALF_SCREEN_WIDTH-210, 300), 1, True, C_BLACK)
+        index_autosave = BPYG.draw_select((HALF_SCREEN_WIDTH-210, 325), 1,(C_BLACK,C_BEIGE),list_autosave,index_autosave)
+
+        BPYG.draw_text('Debug(Soon): ',(HALF_SCREEN_WIDTH-210,375), 1, True, C_BLACK)
+        index_debug = BPYG.draw_select((HALF_SCREEN_WIDTH-200,400),1,(C_BLACK,C_BEIGE),list_debug,index_debug)
         for ev in pyg.event.get():
             if ev.type == QUIT:
                 if CURRENT_CONFIG['RPC']:
@@ -170,10 +179,13 @@ def save_select():
                     selected = img[1][1]
         
         BTN_select = BPYG.draw_button(f'Select: {selected["name"]}',(HALF_SCREEN_WIDTH-300,HALF_SCREEN_HEIGHT+300),0,((0,0,0),C_GREEN))
-        BTN_create = BPYG.draw_button(f'+ Create',(HALF_SCREEN_WIDTH -100, HALF_SCREEN_HEIGHT+300),0,(C_BLACK,C_GREEN))
+        BTN_create = BPYG.draw_button(f'+ Create',(HALF_SCREEN_WIDTH -(200-BPYG.fonts[0].size(f'Select: {selected["name"]}')[0]), HALF_SCREEN_HEIGHT+300),0,(C_BLACK,C_GREEN))
         if BTN_select:
             if selected["name"] != "Not Selected":
-                game(selected)
+                s1 = db.get(selected['name'],'saves')
+                s = savePlayer(literal_eval(s1[1])['name'],literal_eval(s1[1])['color'])
+                s.update2(literal_eval(s1[1]))
+                game(s)
         if BTN_create:
             create,player = create_character()
             if create:
@@ -244,8 +256,18 @@ def game(player):
     menu_open = False
     background = backgroundGroup()
     level = Level(level_map,SCREEN)
-    level.player.sprite.current_color = player['color']
+    
+    player_dict = player.get()
+
+    level.player.sprite.checkpoint = player_dict['checkpoint']
+    level.player.sprite.current_color = player_dict['color']
+    level.player.sprite.maxHealth = player_dict['stats']['maxhealth']
+    level.player.sprite.health = player_dict['stats']['health']
     level.player.sprite.import_character_assets()
+
+    background.hours = player_dict['time']['hour']
+    background.minutes = player_dict['time']['minute']
+    background.day = player_dict['time']['day']
     while run:
         if menu_open:
             BPYG.draw_rect((HALF_SCREEN_WIDTH+200,0),(HALF_SCREEN_WIDTH-200,SCREEN_HEIGHT),(100,100,100),190)
@@ -253,11 +275,14 @@ def game(player):
 
             BPYG.draw_text("Menu",(HALF_SCREEN_WIDTH+225,50),0,True,C_WHITE) # Menu Part
             BTN_resume = BPYG.draw_button("RESUME",(HALF_SCREEN_WIDTH+225,75),0,(C_WHITE,C_GREEN))
+            if not CURRENT_CONFIG['autosave']:
+                BTN_autosave = BPYG.draw_button('Save',(HALF_SCREEN_WIDTH+225,125),0,(C_WHITE,C_INDIGO))
+            else:
+                BTN_autosave = False
+            BTN_exit1 = BPYG.draw_button("Exit to save selector",(HALF_SCREEN_WIDTH+225,175),0,(C_WHITE,C_RED))
+            BTN_exit2 = BPYG.draw_button("Exit to window",(HALF_SCREEN_WIDTH+225, 225), 0, (C_WHITE,C_RED))
 
-            BTN_exit1 = BPYG.draw_button("Exit to save selector",(HALF_SCREEN_WIDTH+225,100),0,(C_WHITE,C_RED))
-            BTN_exit2 = BPYG.draw_button("Exit to window",(HALF_SCREEN_WIDTH+225, 125), 0, (C_WHITE,C_RED))
-
-            BPYG.draw_text(background.getTime()+", "+background.getDay(),(HALF_SCREEN_WIDTH+225,HALF_SCREEN_HEIGHT+100),0,True,C_WHITE)
+            BPYG.draw_text(background.getTime()+", Day: "+background.getDay(),(HALF_SCREEN_WIDTH+225,HALF_SCREEN_HEIGHT+100),0,True,C_WHITE)
             BPYG.draw_text("Inventory",(HALF_SCREEN_WIDTH+225,HALF_SCREEN_HEIGHT+125),0,True,C_WHITE) # Inventory Part
             inv_block_pos = [HALF_SCREEN_WIDTH+ 225,HALF_SCREEN_HEIGHT+175]
             for i in range(5):
@@ -272,12 +297,22 @@ def game(player):
                 menu_open = False
                 level.player.sprite.locked = False
             elif BTN_exit1:
+                if CURRENT_CONFIG['autosave']:
+                    player.update(level)
+                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])    
                 run = False
             elif BTN_exit2:
-                GAME_RUNNING =False
-                DISCORD.join(0.3)
+                if CURRENT_CONFIG['autosave']:
+                    player.update(level)
+                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING =False
+                    DISCORD.join(0.3)
                 pyg.quit()
                 exit()
+            elif BTN_autosave and not CURRENT_CONFIG['autosave']:
+                player.update(level)
+                db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
         else:
             level.player.sprite.locked = False
         
@@ -294,9 +329,13 @@ def game(player):
             hbar_pos[0] += size[0] + 5
 
         if AllScreenDraw():
+            player.update(level)
             run = False
         for ev in pyg.event.get():
             if ev.type == QUIT:
+                if CURRENT_CONFIG['autosave']:
+                    player.update(level)
+                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
                 if CURRENT_CONFIG['RPC']:
                     GAME_RUNNING = False
                     DISCORD.join(0.3)
