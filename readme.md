@@ -75,12 +75,12 @@ PlataformerGame *Restarted*
 7 - Sign (0 = id, 1 = text, 2= style) e.g.: [7,"my text", 0]
 
 # Gallery
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/main_menu.png" width="256px" height="256px" title="Main Menu">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/save_select.png" width="256px" height="256px" title="Save Select Menu">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/character_create.png" width="256px" height="256px" title="Character Create Menu">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/in_game.png" width="256px" height="256px" title="In Game Menu">
+<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/main_menu.png" width="256px" height="256px" title="Main Menu" style="display: inline-block;">
+<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/save_select.png" width="256px" height="256px" title="Save Select Menu" style="display: inline-block;">
+<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/character_create.png" width="256px" height="256px" title="Character Create Menu" style="display: inline-block;">
+<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/in_game.png" width="256px" height="256px" title="In Game Menu" style="display: inline-block;">
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Z8YsoE_-bUE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[![Watch the video](https://img.youtube.com/vi/Z8YsoE_-bUE/0.jpg)](https://youtu.be/Z8YsoE_-bUE)
 
 **ALL HELP WILL BE GREAT**
 
