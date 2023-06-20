@@ -7,7 +7,7 @@ from data.src.settings import *
 
 # Database Setup
 db.create_table("config",["id INTEGER PRIMARY KEY AUTOINCREMENT","config TEXT"]) 
-db.create_table("saves",["id TEXT","player TEXT"])
+db.create_table("saves",["id TEXT","player TEXT","map TEXT"])
 
 if __name__ == '__main__':
     if db.get(1,'config'):

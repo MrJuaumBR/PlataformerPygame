@@ -56,6 +56,19 @@ class BetterPyGame():
             self.fonts.append(f)
         return (self.fonts.index(f), f)
     
+    def create_font2(self,font_file="", font_size = 16) -> pyg.font:
+        """
+        Create a font with your file
+        font_path = the path of ttf file
+        font_size = Size inf pixel of font
+        """
+        f = pyg.font.Font(font_file, font_size)
+        if f in self.fonts:
+            raise(f"This font already exists in fonts list. font don't created, you can acess this in index: {self.fonts.index(f)}")
+        else:
+            self.fonts.append(f)
+        return (self.fonts.index(f), f)
+    
     def while_key_hold(self,key):
         keys = pyg.key.get_pressed()
         if keys[key]:
@@ -102,7 +115,7 @@ class BetterPyGame():
         else:
             return False
 
-    def draw_rect(self,Pos=(0,0), Size=(0,0), color=(0,0,0), alpha=None) -> Rect:
+    def draw_rect(self,Pos=(0,0), Size=(0,0), color=(0,0,0), alpha=None,border=0) -> Rect:
         """
         Draw a rectangle in screen and return it
         Pos = Position
@@ -117,10 +130,10 @@ class BetterPyGame():
             r = s.get_rect(topleft=Pos)
             self.SCREEN.blit(s,r)
         else:
-            r = pyg.draw.rect(self.SCREEN,color,Rect(Pos[0],Pos[1],Size[0],Size[1]))
+            r = pyg.draw.rect(self.SCREEN,color,Rect(Pos[0],Pos[1],Size[0],Size[1]),border)
         return r
     
-    def draw_rect2(self,Pos=(0,0), Size=(0,0), color=(0,0,0), alpha=None) -> Rect:
+    def draw_rect2(self,Pos=(0,0), Size=(0,0), color=(0,0,0), alpha=None,border=None) -> Rect:
         """
         Draw a rectangle in screen and return it
         Pos = Position

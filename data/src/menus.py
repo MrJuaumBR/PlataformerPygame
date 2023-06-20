@@ -137,7 +137,7 @@ def options():
 
 def save_select():
     run = True
-    saves = db.get_all('saves')
+    saves = db.get_all(SAVES_TABLE)
     selected = {"name":"Not Selected","size":"0kb"}
     while run:
         if AllScreenDraw():
@@ -172,8 +172,8 @@ def save_select():
 
         for img in img_btns:
             if img[2]:
-                db.delete(img[1][0],'saves')
-                saves = db.get_all('saves')
+                db.delete(img[1][0],SAVES_TABLE)
+                saves = db.get_all(SAVES_TABLE)
             if img[0].collidepoint(pyg.mouse.get_pos()):
                 if pyg.mouse.get_pressed(3)[0]:
                     selected = img[1][1]
@@ -182,15 +182,15 @@ def save_select():
         BTN_create = BPYG.draw_button(f'+ Create',(HALF_SCREEN_WIDTH -(200-BPYG.fonts[0].size(f'Select: {selected["name"]}')[0]), HALF_SCREEN_HEIGHT+300),0,(C_BLACK,C_GREEN))
         if BTN_select:
             if selected["name"] != "Not Selected":
-                s1 = db.get(selected['name'],'saves')
-                s = savePlayer(literal_eval(s1[1])['name'],literal_eval(s1[1])['color'])
+                s1 = db.get(selected['name'],SAVES_TABLE)
+                s = savePlayer(literal_eval(s1[1])['name'],literal_eval(s1[1])['color'],literal_eval(s1[2]))
                 s.update2(literal_eval(s1[1]))
                 game(s)
         if BTN_create:
             create,player = create_character()
             if create:
-                db.insert('saves',["id",]+SAVES_TABLE_COLUMNS,[player.name,f'{player.get()}'])
-                saves = db.get_all('saves')
+                db.insert(SAVES_TABLE,["id",]+SAVES_TABLE_COLUMNS,[player.name,f'{player.get()}',f'{player.map}',])
+                saves = db.get_all(SAVES_TABLE)
         for ev in pyg.event.get():
             if ev.type == QUIT:
                 if CURRENT_CONFIG['RPC']:
@@ -208,6 +208,10 @@ def create_character():
     run = True
     index_player_color = 0
 
+    list_map = list(DEFAULTS_MAP.keys())
+    index_map = 0
+    cur_map = DEFAULTS_MAP[list_map[index_map]]
+
     player_name = ""
     textbox_player_name = False
     warn_frames = 0
@@ -216,7 +220,7 @@ def create_character():
         if AllScreenDraw():
             run = False
             return (False,None)
-        
+        cur_map = DEFAULTS_MAP[list_map[index_map]]
         pimg = spritesheet(TEXTURES_FOLDER+f'player_{PLAYER_COLORS[index_player_color]}.png').image_at((16,16,16,16),0)
         pimg = pyg.transform.scale(pimg,(TILE_SIZE*2,TILE_SIZE*2))
         SCREEN.blit(pimg,Rect(HALF_SCREEN_HEIGHT+200,HALF_SCREEN_HEIGHT,TILE_SIZE*2,TILE_SIZE*2))
@@ -227,6 +231,9 @@ def create_character():
         BPYG.draw_text("Character Name: ",(HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT-125),0,True)
         textbox_player_name,player_name= BPYG.draw_textbox(rect=(HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT-100),font=4,colors=(C_BLACK,C_CORNSILK,C_LIGHTCYAN),active=textbox_player_name,current_text=player_name,oBlacklisted=[K_SPACE])
 
+        BPYG.draw_text("MAP: ", (HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT-50),0,True)
+        index_map = BPYG.draw_select((HALF_SCREEN_WIDTH-190,HALF_SCREEN_HEIGHT-25),0,(C_BLACK,C_BEIGE),list_map,index_map)
+
         BTN_create = BPYG.draw_button("Create",(HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT+300),0,(C_BLACK,C_GREEN))
         if len(warn) >0:
             warn_frames += 1
@@ -235,10 +242,13 @@ def create_character():
                 warn_frames = 0
                 warn = ""
         if BTN_create:
-            if db.get(player_name,'saves'):
+            if db.get(player_name,SAVES_TABLE):
                 warn = "Already Have a player with this name."
             else:
-                return (True,savePlayer(player_name,PLAYER_COLORS[index_player_color]))
+                s = savePlayer(player_name,PLAYER_COLORS[index_player_color],cur_map)
+                s.maxHealth = basePlayer['stats']['maxhealth']
+                s.health = basePlayer['stats']['health']
+                return (True,s)
         for ev in pyg.event.get():
             if ev.type == QUIT:
                 if CURRENT_CONFIG['RPC']:
@@ -255,7 +265,7 @@ def game(player):
     run = True
     menu_open = False
     background = backgroundGroup()
-    level = Level(level_map,SCREEN)
+    level = Level(player.map,SCREEN)
     
     player_dict = player.get()
 
@@ -299,12 +309,12 @@ def game(player):
             elif BTN_exit1:
                 if CURRENT_CONFIG['autosave']:
                     player.update(level)
-                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])    
+                    db.update(SAVES_TABLE,f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])    
                 run = False
             elif BTN_exit2:
                 if CURRENT_CONFIG['autosave']:
                     player.update(level)
-                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
+                    db.update(SAVES_TABLE,f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
                 if CURRENT_CONFIG['RPC']:
                     GAME_RUNNING =False
                     DISCORD.join(0.3)
@@ -312,7 +322,7 @@ def game(player):
                 exit()
             elif BTN_autosave and not CURRENT_CONFIG['autosave']:
                 player.update(level)
-                db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
+                db.update(SAVES_TABLE,f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
         else:
             level.player.sprite.locked = False
         
@@ -335,7 +345,7 @@ def game(player):
             if ev.type == QUIT:
                 if CURRENT_CONFIG['autosave']:
                     player.update(level)
-                    db.update('saves',f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
+                    db.update(SAVES_TABLE,f"{player.get()['name']}",SAVES_TABLE_COLUMNS,[player.get(),])
                 if CURRENT_CONFIG['RPC']:
                     GAME_RUNNING = False
                     DISCORD.join(0.3)
@@ -353,3 +363,6 @@ def game(player):
 
         background.draw(SCREEN)
         level.run(background)
+        for sprite in level.tiles.sprites():
+            if level.player.sprite.debug:
+                BPYG.draw_rect(sprite.rect.topleft,(TILE_SIZE,TILE_SIZE),C_BLACK,0,4)

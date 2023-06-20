@@ -72,6 +72,11 @@ PlataformerGame *Restarted*
 
 6 - Sleep Capsule(Time pass 2x)
 
+7 - Sign (0 = id, 1 = text, 2= style) e.g.: [7,"my text", 0]
+
+# Gallery
+...
+
 **ALL HELP WILL BE GREAT**
 
 [Discord - Potato Game League](https://discord.gg/fb84sHDX7R)

@@ -18,6 +18,7 @@ class player(pyg.sprite.Sprite):
         self.type = "Player"
 
         self.checkpoint = (0,0)
+        self.debug = False
         # Player Draw
         self.image = self.animations['idle'][self.frame_index]
         self.image = pyg.transform.scale(self.image,size=(64,64))
@@ -121,7 +122,6 @@ class player(pyg.sprite.Sprite):
                 self.respawned = True
                 self.canMove = True
                 
-
     def animate(self):
         animation = self.animations[self.status]
 
@@ -161,6 +161,9 @@ class player(pyg.sprite.Sprite):
     def get_input(self):
         if self.status != "dead" and self.canMove:
             keys = pyg.key.get_pressed()
+            if keys[K_F3]:
+                self.debug = not self.debug
+                pyg.time.delay(150)
             if keys[K_RIGHT] or keys[K_d]:
                 self.direction.x = 1
                 self.facing = "right"
@@ -220,13 +223,15 @@ class player(pyg.sprite.Sprite):
             self.direction.y = 0
 
 class savePlayer():
-    def __init__(self,name:str,color:tuple) -> None:
+    def __init__(self,name:str,color:tuple,level_data) -> None:
         self.color = color
         self.name = name
         self.maxHealth = 0
         self.health = 0
         self.checkpoint = (0,0)
         self.time = {"hour":0,"minute":0,"day":1}
+
+        self.map = level_data
 
     def update(self,level):
         player = level.player.sprite
@@ -238,6 +243,8 @@ class savePlayer():
         self.checkpoint = player.checkpoint
         self.maxHealth = player.maxHealth
         self.health =player.health
+
+        self.map = level.level_data
 
     def update2(self,to_:dict):
         self.time["hour"] = to_["time"]['hour']

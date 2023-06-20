@@ -255,3 +255,39 @@ class sCapsule(Tile):
     def draw(self,surface):
         self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*3,TILE_SIZE*3),(0,0,0),0)
         return super().draw(surface)
+    
+class Sign(Tile):
+    def __init__(self, Pos, Size, text="A Sign",style=0):
+        super().__init__(Pos, Size, None)
+        self.import_assets()
+        self.text = text
+        self.open = False
+        self.collide = False
+        self.style = style
+        self.type = 'action'
+        self.image = pyg.transform.scale(self.images[self.style],(TILE_SIZE,TILE_SIZE))
+        self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*2,TILE_SIZE*2),(0,0,0),0)
+
+    def import_assets(self):
+        s=  spritesheet(TEXTURES_FOLDER+'sign.png')
+        self.images =s.images_at(((0,0,32,32),(32,0,32,32)),0)
+
+    def action(self,player):
+        if (BPYG.while_key_hold(K_KP_ENTER) or BPYG.while_key_hold(KSCAN_KP_ENTER)) or pyg.mouse.get_pressed(3)[2]:
+            self.open = not self.open
+            pyg.time.delay(100)
+
+    def update(self, x_shift):
+        player = self.groups()[0].player
+        if self.hitbox.colliderect(player.rect):
+            self.action(player)
+        else:
+            self.open = False
+
+        if self.open:
+            BPYG.draw_text(self.text,(HALF_SCREEN_WIDTH-350,HALF_SCREEN_HEIGHT-250),5, True, C_WHITE,C_NAVY)
+        return super().update(x_shift)
+
+    def draw(self, surface):
+        self.hitbox = BPYG.draw_rect2(self.rect.center,(TILE_SIZE*2,TILE_SIZE*2),(0,0,0),0)
+        return super().draw(surface)

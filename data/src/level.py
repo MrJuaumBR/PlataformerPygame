@@ -11,6 +11,7 @@ class Level:
 
         # level setup
         self.display_surface = surface
+        self.level_data = level_data
         self.setup_level(level_data)
         self.world_shift = 0
         self.all_world_shift = 0
@@ -26,29 +27,36 @@ class Level:
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_SIZE
                 y = row_index * TILE_SIZE
-                if cell == '1':
+                if str(cell) == '1':
                     tile = Tile((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell == '0':
+                elif str(cell) == '0':
                     player_sprite = player((x,y))
                     self.tiles.player = player_sprite
                     self.player.add(player_sprite)
                     self.player.sprite.checkpoint = (x,y)
-                elif cell == '2':
+                elif str(cell) == '2':
                     tile = SpikeBall((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell == '3':
+                elif str(cell) == '3':
                     tile = Spike((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell == '4':
+                elif str(cell) == '4':
                     tile = Checkpoint((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell =='5':
+                elif str(cell) =='5':
                     tile = Door((x,y),TILE_SIZE)
                     self.tiles.add(tile)
-                elif cell == '6':
+                elif str(cell) == '6':
                     tile = sCapsule((x,y),TILE_SIZE)
                     self.tiles.add(tile)
+                else:
+                    if type(cell) in [list, tuple]:
+                        if str(cell[0]) == '7':
+                            tile = Sign((x,y),TILE_SIZE,cell[1],cell[2])
+                            self.tiles.add(tile)
+                    else:
+                        pass
         
         self.tiles.add(DeadPoint((0,SCREEN_HEIGHT+50),(SCREEN_WIDTH+60,15))) # Dead Point
 
