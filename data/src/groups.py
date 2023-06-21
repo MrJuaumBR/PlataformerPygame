@@ -22,6 +22,10 @@ class TilesGroup(pyg.sprite.Group):
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.priority):
             sprite.draw(surface)
 
+    def update(self,x_shift):
+        for sprite in self.sprites():
+            sprite.update(x_shift)
+
 class backgroundGroup(pyg.sprite.Group):
     def __init__(self, *sprites: Sprite | Sequence[Sprite]) -> None:
         super().__init__(*sprites)

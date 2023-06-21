@@ -6,6 +6,7 @@ __pycache__/
 
 # DataBases
 *.db
+screenshots/
 
 # C extensions
 *.so

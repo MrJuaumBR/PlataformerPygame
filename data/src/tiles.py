@@ -285,7 +285,7 @@ class Sign(Tile):
             self.open = False
 
         if self.open:
-            BPYG.draw_text(self.text,(HALF_SCREEN_WIDTH-350,HALF_SCREEN_HEIGHT-250),5, True, C_WHITE,C_NAVY)
+            BPYG.draw_text(self.text,(self.rect.left,self.rect.top-TILE_SIZE),5, True, C_WHITE,C_NAVY)
         return super().update(x_shift)
 
     def draw(self, surface):

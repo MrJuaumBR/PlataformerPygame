@@ -4,9 +4,19 @@ from sys import exit
 from data.src.settings import *
 from data.src.tiles import *
 from data.src.level import Level
-from data.src.player import savePlayer
-from data.src.groups import backgroundGroup
+from data.src.player import savePlayer,PCursor
+from data.src.groups import backgroundGroup,TilesGroup
 from ast import literal_eval
+
+Tiles_Dict = {
+    "Null":{"call":"erase"},
+    "Tile":{"call":Tile},
+    "Spike":{"call":Spike},
+    "Checkpoint":{"call":Checkpoint},
+    "Door":{"call":Door},
+    "SleepCapsule":{"call":sCapsule},
+    "Sign":{"call":Sign}
+}
 
 GAME_RUNNING = True
 DISCORD = threading.Thread(target=Setup_Discord,args=(lambda : GAME_RUNNING,))
@@ -43,7 +53,7 @@ def main():
         BTN_options = BPYG.draw_button('OPTIONS',(HALF_SCREEN_SIZE[0]-200,HALF_SCREEN_SIZE[1]-150),0,((0,0,0),(100,100,200)))
         BTN_exit = BPYG.draw_button('EXIT',(HALF_SCREEN_SIZE[0]-200,HALF_SCREEN_SIZE[1]-100),0,((0,0,0),(200,100,100)))
         if BTN_play:
-            save_select()
+            play_menu()
         if BTN_options:
             options()
             #db.update("config",1,CONFIG_TABLE_COLUMNS,)
@@ -134,6 +144,76 @@ def options():
         pyg.display.update()
         CLOCK.tick(FPS)
         SCREEN.fill(C_WHITE)
+
+def play_menu():
+    run = True
+    while run:
+        if AllScreenDraw():
+            run = False
+        BPYG.draw_text("Select game mode:" ,(50,50),0,True,C_BLACK)
+        BTN_play = BPYG.draw_button("Play: Normal Mode",(HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT-200),1,(C_BLACK,C_GREEN))
+        BTN_level_create = BPYG.draw_button("Play: Level Create",(HALF_SCREEN_WIDTH-200,HALF_SCREEN_HEIGHT-100),1,(C_BLACK,C_GREEN))
+        if BTN_play:
+            save_select()
+        if BTN_level_create:
+            level_create()
+        for ev in pyg.event.get():
+            if ev.type == QUIT:
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join()
+                pyg.quit()
+                exit()
+        
+        pyg.display.update()
+        CLOCK.tick(FPS)
+        SCREEN.fill(C_WHITE)   
+
+def level_create():
+    run = True
+    cur_map = []
+    for _ in range(11):
+        cur_map.append([])
+    cur = PCursor((0,0))
+    Tiles = TilesGroup()
+    while run:
+        if AllScreenDraw():
+            run = False
+        if BPYG.while_key_hold(K_LALT) or BPYG.while_key_hold(K_RALT):
+            BPYG.draw_rect((0,0),(300,SCREEN_HEIGHT),C_NAVY,100,3)
+            pos = [TILE_SIZE//2,TILE_SIZE//2]
+            blocks = []
+            for i,item in enumerate(Tiles_Dict):
+                name = Tiles_Dict[item]
+                b = BPYG.draw_button(item,pos,1,(C_BLACK,C_LIGHTSKYBLUE))
+                pos[0] += TILE_SIZE+5
+                if i+1 in [3,6,9,12,15,18,21]:
+                    pos[1] += TILE_SIZE+5
+                    pos[0] = TILE_SIZE//2
+                blocks.append((b,item))
+            for bt in blocks:
+                if bt[0]:
+                    c = Tiles_Dict[bt[1]]['call']
+                    if callable(c):
+                        t = c(cur.rect.topleft,TILE_SIZE)
+                        Tiles.add(t)
+                    pyg.time.delay(50)
+
+
+        for ev in pyg.event.get():
+            if ev.type == QUIT:
+                if CURRENT_CONFIG['RPC']:
+                    GAME_RUNNING = False
+                    DISCORD.join()
+                pyg.quit()
+                exit()
+        pyg.display.update()
+        cur.update()
+        Tiles.update(cur.shift)
+        CLOCK.tick(FPS)
+        SCREEN.fill(C_WHITE)
+        cur.draw()
+        Tiles.draw(SCREEN)
 
 def save_select():
     run = True

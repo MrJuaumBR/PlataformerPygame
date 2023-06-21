@@ -36,6 +36,7 @@ MAP DICTIONARY:
 7 = Sign (0 = id, 1 = text, 2= style) e.g.: [7,"my text", 0]
 
 """
+
 import pygame as pyg
 from pygame.locals import *
 from sys import exit

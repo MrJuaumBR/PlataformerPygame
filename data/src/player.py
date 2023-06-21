@@ -1,6 +1,8 @@
 import pygame as pyg
 from pygame.locals import *
 from sys import exit
+
+from pygame.sprite import AbstractGroup
 from .support import spritesheet
 from .settings import *
 from random import randint
@@ -268,3 +270,51 @@ class savePlayer():
         b["stats"]["maxhealth"] = self.maxHealth
         b["stats"]["health"] = self.health
         return b
+    
+class PCursor(pyg.sprite.Sprite):
+    def __init__(self,pos, *groups: AbstractGroup) -> None:
+        super().__init__(*groups)
+        self.image = pyg.Surface((TILE_SIZE,TILE_SIZE),SRCALPHA)
+        self.image.fill(C_BLACK)
+        self.image.set_alpha(170)
+        self.rect = Rect(0,0,TILE_SIZE,TILE_SIZE)
+        self.rect.topleft = pos
+        self.dir = pyg.math.Vector2(0,0)
+        self.shift= 0
+
+    def get_keys(self):
+        if BPYG.while_key_hold(K_LEFT) or BPYG.while_key_hold(K_a): # LEFT
+            self.dir.x = -TILE_SIZE
+        elif BPYG.while_key_hold(K_RIGHT) or BPYG.while_key_hold(K_d): # Right
+            self.dir.x = TILE_SIZE
+        if self.dir.x != 0:
+            pyg.time.delay(25)
+
+        if BPYG.while_key_hold(K_UP) or BPYG.while_key_hold(K_w): # Up
+            self.dir.y = -TILE_SIZE
+        elif BPYG.while_key_hold(K_DOWN) or BPYG.while_key_hold(K_s): # Down
+            self.dir.y = TILE_SIZE
+        if self.dir.y != 0:
+            pyg.time.delay(25)
+
+
+        if self.rect.x+self.dir.x>SCREEN_WIDTH:
+            self.shift += TILE_SIZE
+        elif self.rect.x+self.dir.x<0:
+            self.shift += -TILE_SIZE
+
+        if self.rect.y+self.dir.y>SCREEN_HEIGHT:
+            self.dir.y = 0
+            self.rect.bottom = SCREEN_HEIGHT-1
+        if self.rect.y+self.dir.y<0:
+            self.dir.y = 0
+
+    def update(self):
+        self.get_keys()
+        self.rect.x += self.dir.x
+        self.rect.y += self.dir.y
+        self.dir.x = 0
+        self.dir.y = 0
+
+    def draw(self):
+        SCREEN.blit(self.image,self.rect)
