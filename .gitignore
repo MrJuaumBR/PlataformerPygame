@@ -13,6 +13,7 @@ screenshots/
 
 # Distribution / packaging
 .Python
+screenshots/
 build/
 develop-eggs/
 dist/
