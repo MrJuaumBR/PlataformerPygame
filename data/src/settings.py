@@ -6,10 +6,13 @@ TODO LIST
 [-] - Removed
 [!] - Tiny Changes
 [*] - Changes
+=============( 0.2 )=============
 
+
+=============( 0.1 )=============
 [* 0.1] - Save System
 [+ 0.1] - Time System(Day & Night)
-- World Edit & Create
+[* 0.1]- World Edit & Create
 [! 0.1] - Enemys
 [+ 0.1] - Life System
 [! 0.1] - Tools & Drops
@@ -19,6 +22,8 @@ TODO LIST
   [! 0.1] - Inventory
 [+ 0.1] - Discord Rich Presence
 [+ 0.1] - Player Color System
+[+ 0.1] - Added Game icon
+
 
 =========================================================================== [BUGS LIST]
 
@@ -74,6 +79,7 @@ TEST_level_map = [
     ['1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1','1']
 
 ]
+ICON = pyg.image.load("./data/src/icon.png")
 
 DEFAULTS_MAP = {"test":TEST_level_map,"base":BASE_level_map}
 
@@ -87,6 +93,7 @@ HANDBAR_KEYS = [(1,K_1),(2,K_2),(3,K_3)]
 
 pyg.init()
 SCREEN = pyg.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT),FULLSCREEN)
+pyg.display.set_icon(ICON)
 CLOCK = pyg.time.Clock()
 
 SCREEN_HEIGHT = SCREEN.get_size()[1] # Update for the fullscreen window size

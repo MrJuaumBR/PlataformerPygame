@@ -24,19 +24,20 @@ PlataformerGame *Restarted*
 - pypresence
 - ast
 
-# Future ideas(+ = Added):
-- +Save System
-- +Time System(Day & Night)
+# Future ideas([x] = Added):
+- [x]Save System
+- [x]Time System(Day & Night)
 - World Edit & Create
 - Enemys
-- +Life System
+- [x]Life System
 - Tools & Drops
 - RPG Games GUI
-- +Main Menu
-- +Pause Menu
+- [X]Game Icon
+- [x]Main Menu
+- [x]Pause Menu
 - Inventory
-- +Discord Rich Presence
-- +Player Color Select
+- [x]Discord Rich Presence
+- [x]Player Color Select
 
 # How to edit the text map?
 1  - we need to go to the settings file:
@@ -75,10 +76,13 @@ PlataformerGame *Restarted*
 7 - Sign (0 = id, 1 = text, 2= style) e.g.: [7,"my text", 0]
 
 # Gallery
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/main_menu.png" width="256px" height="256px" title="Main Menu" style="display: inline-block;">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/save_select.png" width="256px" height="256px" title="Save Select Menu" style="display: inline-block;">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/character_create.png" width="256px" height="256px" title="Character Create Menu" style="display: inline-block;">
-<img src="https://raw.githubusercontent.com/MrJuaumBR/PlataformerPygame/main/screenshots/in_game.png" width="256px" height="256px" title="In Game Menu" style="display: inline-block;">
+<div style="text-align: center;">
+<img src="./screenshots/main_menu.png" width="256px" height="256px" title="Main Menu" style="display: inline-block;">
+<img src="./screenshots/save_select.png" width="256px" height="256px" title="Save Select Menu" style="display: inline-block;">
+<img src="./screenshots/character_create.png" width="256px" height="256px" title="Character Create Menu" style="display: inline-block;">
+<img src="./screenshots/in_game.png" width="256px" height="256px" title="In Game Menu" style="display: inline-block;">
+<img src="./screenshots/icon.png" width="128px" height="128px" title="Game icon">
+</div>
 
 [![Watch the video](https://img.youtube.com/vi/Z8YsoE_-bUE/0.jpg)](https://youtu.be/Z8YsoE_-bUE)
 
